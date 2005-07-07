@@ -70,8 +70,8 @@ sub _init {
 	croak "no source specified";
     }
 
+    $self->{_urpm}           = $urpm;
     $self->{_dir}            = $options{dir};
-    $self->{_urpm}           = $options{urpm};
     $self->{_max_age}        = $options{max_age};
     $self->{_rpmlint_config} = $options{rpmlint_config};
 
