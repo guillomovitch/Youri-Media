@@ -28,7 +28,7 @@ sub _init {
     SOURCE: {
 	if ($options{synthesis}) {
 	    print "Attempting to retrieve synthesis from $options{synthesis}\n" if $options{verbose};
-	    my $synthesis = $class->_get_file($options{synthesis});
+	    my $synthesis = $self->_get_file($options{synthesis});
 	    if ($synthesis) {
 		$urpm->parse_synthesis($synthesis, keep_all_tags => 1);
 		last SOURCE;
@@ -37,7 +37,7 @@ sub _init {
 
 	if ($options{hdlist}) { 
 	    print "Attempting to retrieve hdlist from $options{hdlist}\n" if $options{verbose};
-	    my $hdlist = $class->_get_file($options{hdlist});
+	    my $hdlist = $self->_get_file($options{hdlist});
 	    if ($hdlist) {
 		$urpm->parse_hdlist($hdlist, keep_all_tags => 1);
 		last SOURCE;
