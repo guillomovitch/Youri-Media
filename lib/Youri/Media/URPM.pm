@@ -16,9 +16,9 @@ sub _init {
     my $self   = shift;
 
     my %options = (
-	hdlist         => '',    # hdlist from wich to create this media
-	synthesis      => '',    # synthesis from wich to create this media
-	dir            => '',    # directory from wich to create this media
+	hdlist         => '',    # hdlist from which to create this media
+	synthesis      => '',    # synthesis from which to create this media
+	dir            => '',    # directory from which to create this media
 	max_age        => '',    # maximum build age for packages
 	rpmlint_config => '',    # rpmlint configuration for packages
 	@_
@@ -70,12 +70,11 @@ sub _init {
 	croak "no source specified";
     }
 
-    add2hash_($self, {
-                      _max_age        => $options{max_age}, 
-                      _rpmlint_config => $options{rpmlint_config}, 
-                      _dir            => $options{dir},
-                      _urpm           => $urpm,
-                     });
+    $self->{_dir}            = $options{dir};
+    $self->{_urpm}           = $options{urpm};
+    $self->{_max_age}        = $options{max_age};
+    $self->{_rpmlint_config} = $options{rpmlint_config};
+
     return $self;
 }
 
