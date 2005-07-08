@@ -51,14 +51,14 @@ sub new {
 	_skip_inputs    => $options{skip_inputs},
     }, $class;
 
+    $self->_init(%options);
+
     # remove unwanted archs
     if ($options{skip_archs}->{all}) {
         $self->_remove_all_archs()
     } elsif ($options{skip_archs}) {
         $self->_remove_archs($options{skip_archs});
     }
-
-    $self->_init(%options);
 
     return $self;
 }
