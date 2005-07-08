@@ -90,7 +90,7 @@ sub _remove_archs {
     my ($self, $skip_archs) = @_;
     croak "Not a class method" unless ref $self;
 
-    my $urpm = $self->{_urpm}->{depslist};
+    my $urpm = $self->{_urpm};
     $urpm->{depslist} = [
                          grep { ! $skip_archs->{$_->arch()} } @{$urpm->{depslist}}
                         ];
