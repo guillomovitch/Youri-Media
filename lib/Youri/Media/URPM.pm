@@ -9,6 +9,7 @@ use LWP::Simple;
 use Carp;
 use strict;
 use warnings;
+use Youri::Package::URPM;
 
 use base 'Youri::Media::Base';
 
@@ -119,7 +120,8 @@ sub check_files {
 	return unless -r $File::Find::name;
 	return unless $_ =~ /\.rpm$/;
 
-	my $package = get_rpm($File::Find::name);
+	# my $package = get_rpm($File::Find::name);
+        my $package = Youri::Package::URPM->new(rpm_file => $File::Find::name);
 	return if $self->{_skip_archs}->{$package->arch()};
 
 	$check->($File::Find::name, $package);
@@ -132,7 +134,11 @@ sub check_packages {
     my ($self, $check) = @_;
     croak "Not a class method" unless ref $self;
 
-    $self->{_urpm}->traverse($check);
+    # the media is traversed. Each rpm object is wrapped into Package before applying $check
+    $self->{_urpm}->traverse(sub {
+        $check->(Youri::Package::URPM->new(rpm_package => $_[0]));
+    });
+    
 }
 
 =head2 $media->find_packages_with_provide(I<$provide>)
