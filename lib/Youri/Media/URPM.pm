@@ -218,7 +218,9 @@ sub _index_provides {
 	}
     };
 
-    $self->{_urpm}->traverse($fetch);
+    $self->{_urpm}->traverse(sub {
+        $fetch->(Youri::Package::URPM->new(rpm_package => $_[0]));
+    });
 
     $self->{_provides} = \%provides;
 }
@@ -244,7 +246,9 @@ sub _index_files {
 	}
     };
 
-    $self->{_urpm}->traverse($fetch);
+    $self->{_urpm}->traverse(sub {
+        $fetch->(Youri::Package::URPM->new(rpm_package => $_[0]));
+    });
 
     $self->{_files} = \%files;
 }
