@@ -37,6 +37,7 @@ sub new {
 
     # some options need to be arrays. Check it and convert to hashes
     foreach my $option (qw(allow_deps skip_archs skip_inputs)) {
+	next unless defined $options{$option};
 	croak "$option should be an arrayref" unless ref $options{$option} eq 'ARRAY';
 	$options{$option}  = {
 	    map { $_ => 1 } @{$options{$option}}
