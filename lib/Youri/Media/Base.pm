@@ -26,29 +26,29 @@ Instantiates a Base Media object.
 sub new {
     my $class   = shift;
     my %options = (
-	id             => '',    # object id
-	test           => 0,     # test mode
-	verbose        => 0,     # verbose mode
-	allow_deps     => undef, # list of media ids from which deps are allowed
-	skip_inputs    => undef, # list of inputs ids to skip
-	skip_archs     => undef, # list of archs for which to skip tests
-	@_
+        id             => '',    # object id
+        test           => 0,     # test mode
+        verbose        => 0,     # verbose mode
+        allow_deps     => undef, # list of media ids from which deps are allowed
+        skip_inputs    => undef, # list of inputs ids to skip
+        skip_archs     => undef, # list of archs for which to skip tests
+        @_
     );
 
     # some options need to be arrays. Check it and convert to hashes
     foreach my $option (qw(allow_deps skip_archs skip_inputs)) {
-	next unless defined $options{$option};
-	croak "$option should be an arrayref" unless ref $options{$option} eq 'ARRAY';
-	$options{$option}  = {
-	    map { $_ => 1 } @{$options{$option}}
-	};
+        next unless defined $options{$option};
+        croak "$option should be an arrayref" unless ref $options{$option} eq 'ARRAY';
+        $options{$option}  = {
+            map { $_ => 1 } @{$options{$option}}
+        };
     }
 
     my $self = bless {
-	_id             => $options{id}, 
-	_allow_deps     => $options{allow_deps}, 
-	_skip_archs     => $options{skip_archs},
-	_skip_inputs    => $options{skip_inputs},
+        _id             => $options{id}, 
+        _allow_deps     => $options{allow_deps}, 
+        _skip_archs     => $options{skip_archs},
+        _skip_inputs    => $options{skip_inputs},
     }, $class;
 
     $self->_init(%options);

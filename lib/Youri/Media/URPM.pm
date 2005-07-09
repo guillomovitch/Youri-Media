@@ -17,58 +17,58 @@ sub _init {
     my $self   = shift;
 
     my %options = (
-	hdlist         => '',    # hdlist from which to create this media
-	synthesis      => '',    # synthesis from which to create this media
-	dir            => '',    # directory from which to create this media
-	max_age        => '',    # maximum build age for packages
-	rpmlint_config => '',    # rpmlint configuration for packages
-	@_
+        hdlist         => '',    # hdlist from which to create this media
+        synthesis      => '',    # synthesis from which to create this media
+        dir            => '',    # directory from which to create this media
+        max_age        => '',    # maximum build age for packages
+        rpmlint_config => '',    # rpmlint configuration for packages
+        @_
     );
 
     my $urpm = URPM->new();
     SOURCE: {
-	if ($options{synthesis}) {
-	    print "Attempting to retrieve synthesis from $options{synthesis}\n" if $options{verbose};
-	    my $synthesis = $self->_get_file($options{synthesis});
-	    if ($synthesis) {
-		$urpm->parse_synthesis($synthesis, keep_all_tags => 1);
-		last SOURCE;
-	    }
-	}
+        if ($options{synthesis}) {
+            print "Attempting to retrieve synthesis from $options{synthesis}\n" if $options{verbose};
+            my $synthesis = $self->_get_file($options{synthesis});
+            if ($synthesis) {
+        	$urpm->parse_synthesis($synthesis, keep_all_tags => 1);
+        	last SOURCE;
+            }
+        }
 
-	if ($options{hdlist}) { 
-	    print "Attempting to retrieve hdlist from $options{hdlist}\n" if $options{verbose};
-	    my $hdlist = $self->_get_file($options{hdlist});
-	    if ($hdlist) {
-		$urpm->parse_hdlist($hdlist, keep_all_tags => 1);
-		last SOURCE;
-	    }
-	}
+        if ($options{hdlist}) { 
+            print "Attempting to retrieve hdlist from $options{hdlist}\n" if $options{verbose};
+            my $hdlist = $self->_get_file($options{hdlist});
+            if ($hdlist) {
+        	$urpm->parse_hdlist($hdlist, keep_all_tags => 1);
+        	last SOURCE;
+            }
+        }
 
-	if ($options{dir}) {
-	    print "Attempting to scan directory $options{dir}\n" if $options{verbose};
-	    unless (-d $options{dir}) {
-		carp "non-existing dir $options{dir}";
-		last SOURCE;
-	    }
-	    unless (-r $options{dir}) {
-		carp "non-readable dir $options{dir}";
-		last SOURCE;
-	    }
+        if ($options{dir}) {
+            print "Attempting to scan directory $options{dir}\n" if $options{verbose};
+            unless (-d $options{dir}) {
+        	carp "non-existing dir $options{dir}";
+        	last SOURCE;
+            }
+            unless (-r $options{dir}) {
+        	carp "non-readable dir $options{dir}";
+        	last SOURCE;
+            }
 
-	    my $parse = sub {
-		return unless -f $File::Find::name;
-		return unless -r $File::Find::name;
-		return unless /\.rpm$/;
+            my $parse = sub {
+        	return unless -f $File::Find::name;
+        	return unless -r $File::Find::name;
+        	return unless /\.rpm$/;
 
-		$urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
-	    };
+        	$urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
+            };
 
-	    find($parse, $options{dir});
-	    last SOURCE;
-	}
-	
-	croak "no source specified";
+            find($parse, $options{dir});
+            last SOURCE;
+        }
+        
+        croak "no source specified";
     }
 
     $self->{_urpm}           = $urpm;
@@ -116,15 +116,15 @@ sub check_files {
     croak "Not a class method" unless ref $self;
 
     my $callback = sub {
-	return unless -f $File::Find::name;
-	return unless -r $File::Find::name;
-	return unless $_ =~ /\.rpm$/;
+        return unless -f $File::Find::name;
+        return unless -r $File::Find::name;
+        return unless $_ =~ /\.rpm$/;
 
-	# my $package = get_rpm($File::Find::name);
+        # my $package = get_rpm($File::Find::name);
         my $package = Youri::Package::URPM->new(rpm_file => $File::Find::name);
-	return if $self->{_skip_archs}->{$package->arch()};
+        return if $self->{_skip_archs}->{$package->arch()};
 
-	$check->($File::Find::name, $package);
+        $check->($File::Find::name, $package);
     };
 
     find($callback, $self->{_dir});
@@ -167,8 +167,8 @@ sub find_packages_with_provide {
     $self->_index_provides() unless $self->{_provides};
 
     return $self->{_provides}->{$provide} ?
-	@{$self->{_provides}->{$provide}} :
-	();
+        @{$self->{_provides}->{$provide}} :
+        ();
 }
 
 =head2 $media->find_packages_with_file(I<$file>)
@@ -195,8 +195,8 @@ sub find_packages_with_file {
     $self->_index_files() unless $self->{_files};
 
     return $self->{_files}->{$file} ?
-	@{$self->{_files}->{$file}} :
-	();
+        @{$self->{_files}->{$file}} :
+        ();
 }
 
 sub _index_provides {
@@ -204,18 +204,18 @@ sub _index_provides {
 
     my %provides;
     my $fetch = sub {
-	my ($package) = @_;
-	foreach my $dep ($package->provides()) {
-	    my ($name, $range) = $dep =~ /^([^[]+)(?:\[(.+)\])?$/;
-	    push(@{$provides{$name}}, {
-		range   => $range ?
-		    $range eq '*' ?
-			undef :
-			$range :
-		    $range,
-		package => $package
-	    });
-	}
+        my ($package) = @_;
+        foreach my $dep ($package->provides()) {
+            my ($name, $range) = $dep =~ /^([^[]+)(?:\[(.+)\])?$/;
+            push(@{$provides{$name}}, {
+        	range   => $range ?
+        	    $range eq '*' ?
+        		undef :
+        		$range :
+        	    $range,
+        	package => $package
+            });
+        }
     };
 
     $self->{_urpm}->traverse(sub {
@@ -230,20 +230,20 @@ sub _index_files {
 
     my %files;
     my $fetch = sub {
-	my ($package) = @_;
+        my ($package) = @_;
 
-	my @modes   = $package->files_mode();
-	my @md5sums = $package->files_md5sum();
+        my @modes   = $package->files_mode();
+        my @md5sums = $package->files_md5sum();
 
-	foreach my $file ($package->files()) {
-	    my $mode = shift @modes;
-	    my $md5sum = shift @md5sums;
-	    push(@{$files{$file}}, {
-		package => $package,
-		mode    => $mode,
-		md5sum  => $md5sum
-	    });
-	}
+        foreach my $file ($package->files()) {
+            my $mode = shift @modes;
+            my $md5sum = shift @md5sums;
+            push(@{$files{$file}}, {
+        	package => $package,
+        	mode    => $mode,
+        	md5sum  => $md5sum
+            });
+        }
     };
 
     $self->{_urpm}->traverse(sub {
@@ -257,23 +257,23 @@ sub _get_file {
     my ($self, $file) = @_;
 
     if ($file =~ /^(?:http|ftp):\/\/.*$/) {
-	my $tempfile = File::Temp->new();
-	my $status = getstore($file, $tempfile->filename());
-	unless (is_success($status)) {
-	    carp "invalid URL $file: $status";
-	    return;
-	}
-	return $tempfile;
+        my $tempfile = File::Temp->new();
+        my $status = getstore($file, $tempfile->filename());
+        unless (is_success($status)) {
+            carp "invalid URL $file: $status";
+            return;
+        }
+        return $tempfile;
     } else {
-	unless (-f $file) {
-	    carp "non-existing file $file";
-	    return;
-	}
-	unless (-r $file) {
-	    carp "non-readable file $file";
-	    return;
-	}
-	return $file;
+        unless (-f $file) {
+            carp "non-existing file $file";
+            return;
+        }
+        unless (-r $file) {
+            carp "non-readable file $file";
+            return;
+        }
+        return $file;
     }
 }
 1;
