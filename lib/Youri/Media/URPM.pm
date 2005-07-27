@@ -19,7 +19,7 @@ sub _init {
     my %options = (
         hdlist         => '',    # hdlist from which to create this media
         synthesis      => '',    # synthesis from which to create this media
-        dir            => '',    # directory from which to create this media
+        path           => '',    # directory from which to create this media
         max_age        => '',    # maximum build age for packages
         rpmlint_config => '',    # rpmlint configuration for packages
         @_
@@ -45,14 +45,14 @@ sub _init {
             }
         }
 
-        if ($options{dir}) {
-            print "Attempting to scan directory $options{dir}\n" if $options{verbose};
-            unless (-d $options{dir}) {
-        	carp "non-existing dir $options{dir}";
+        if ($options{path}) {
+            print "Attempting to scan directory $options{path}\n" if $options{verbose};
+            unless (-d $options{path}) {
+        	carp "non-existing dir $options{path}";
         	last SOURCE;
             }
-            unless (-r $options{dir}) {
-        	carp "non-readable dir $options{dir}";
+            unless (-r $options{path}) {
+        	carp "non-readable dir $options{path}";
         	last SOURCE;
             }
 
@@ -64,7 +64,7 @@ sub _init {
         	$urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
             };
 
-            find($parse, $options{dir});
+            find($parse, $options{path});
             last SOURCE;
         }
         
@@ -72,7 +72,7 @@ sub _init {
     }
 
     $self->{_urpm}           = $urpm;
-    $self->{_dir}            = $options{dir};
+    $self->{_path}           = $options{path};
     $self->{_max_age}        = $options{max_age};
     $self->{_rpmlint_config} = $options{rpmlint_config};
 
@@ -127,7 +127,7 @@ sub check_files {
         $check->($File::Find::name, $package);
     };
 
-    find($callback, $self->{_dir});
+    find($callback, $self->{_path});
 }
 
 sub check_packages {
