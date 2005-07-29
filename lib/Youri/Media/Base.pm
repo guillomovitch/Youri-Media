@@ -159,13 +159,13 @@ sub skip_input {
 
 sub check_files {
     my ($self) = @_;
-    croak "There is no 'check_files' defined in this Media : '" . ref($self) ."'.";
+    croak "No check_files() method in class " . ref($self);
 
 }
 
-sub check_packages {
+sub check_headers {
     my ($self) = @_;
-    croak "There is no 'check_package' defined in this Media : '" . ref($self) ."'.";
+    croak "No check_headers() method in class " . ref($self);
 
 }
 

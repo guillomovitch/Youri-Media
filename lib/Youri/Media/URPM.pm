@@ -120,8 +120,7 @@ sub check_files {
         return unless -r $File::Find::name;
         return unless $_ =~ /\.rpm$/;
 
-        # my $package = get_rpm($File::Find::name);
-        my $package = Youri::Package::URPM->new(rpm_file => $File::Find::name);
+        my $package = Youri::Package::URPM->new(file => $File::Find::name);
         return if $self->{_skip_archs}->{$package->arch()};
 
         $check->($File::Find::name, $package);
@@ -130,13 +129,12 @@ sub check_files {
     find($callback, $self->{_path});
 }
 
-sub check_packages {
+sub check_headers {
     my ($self, $check) = @_;
     croak "Not a class method" unless ref $self;
 
-    # the media is traversed. Each rpm object is wrapped into Package before applying $check
     $self->{_urpm}->traverse(sub {
-        $check->(Youri::Package::URPM->new(rpm_package => $_[0]));
+        $check->(Youri::Package::URPM->new(header => $_[0]));
     });
     
 }
