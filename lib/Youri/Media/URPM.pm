@@ -31,8 +31,8 @@ sub _init {
             print "Attempting to retrieve synthesis from $options{synthesis}\n" if $options{verbose};
             my $synthesis = $self->_get_file($options{synthesis});
             if ($synthesis) {
-        	$urpm->parse_synthesis($synthesis, keep_all_tags => 1);
-        	last SOURCE;
+            $urpm->parse_synthesis($synthesis, keep_all_tags => 1);
+            last SOURCE;
             }
         }
 
@@ -40,28 +40,28 @@ sub _init {
             print "Attempting to retrieve hdlist from $options{hdlist}\n" if $options{verbose};
             my $hdlist = $self->_get_file($options{hdlist});
             if ($hdlist) {
-        	$urpm->parse_hdlist($hdlist, keep_all_tags => 1);
-        	last SOURCE;
+            $urpm->parse_hdlist($hdlist, keep_all_tags => 1);
+            last SOURCE;
             }
         }
 
         if ($options{path}) {
             print "Attempting to scan directory $options{path}\n" if $options{verbose};
             unless (-d $options{path}) {
-        	carp "non-existing dir $options{path}";
-        	last SOURCE;
+            carp "non-existing dir $options{path}";
+            last SOURCE;
             }
             unless (-r $options{path}) {
-        	carp "non-readable dir $options{path}";
-        	last SOURCE;
+            carp "non-readable dir $options{path}";
+            last SOURCE;
             }
 
             my $parse = sub {
-        	return unless -f $File::Find::name;
-        	return unless -r $File::Find::name;
-        	return unless /\.rpm$/;
+            return unless -f $File::Find::name;
+            return unless -r $File::Find::name;
+            return unless /\.rpm$/;
 
-        	$urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
+            $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
             };
 
             find($parse, $options{path});
@@ -206,12 +206,12 @@ sub _index_provides {
         foreach my $dep ($package->provides()) {
             my ($name, $range) = $dep =~ /^([^[]+)(?:\[(.+)\])?$/;
             push(@{$provides{$name}}, {
-        	range   => $range ?
-        	    $range eq '*' ?
-        		undef :
-        		$range :
-        	    $range,
-        	package => $package
+            range   => $range ?
+                $range eq '*' ?
+                undef :
+                $range :
+                $range,
+            package => $package
             });
         }
     };
@@ -237,9 +237,9 @@ sub _index_files {
             my $mode = shift @modes;
             my $md5sum = shift @md5sums;
             push(@{$files{$file}}, {
-        	package => $package,
-        	mode    => $mode,
-        	md5sum  => $md5sum
+            package => $package,
+            mode    => $mode,
+            md5sum  => $md5sum
             });
         }
     };
