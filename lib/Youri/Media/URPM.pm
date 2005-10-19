@@ -205,14 +205,14 @@ sub _index_provides {
         my ($package) = @_;
         foreach my $dep ($package->provides()) {
             my ($name, $range) = $dep =~ /^([^[]+)(?:\[(.+)\])?$/;
-            push(@{$provides{$name}}, {
-                range   => $range ?
+            push(@{$provides{$name}}, [
+                $package,
+                $range ?
                     $range eq '*' ?
                         undef :
                         $range :
-                    $range,
-                package => $package
-            });
+                    $range
+            ]);
         }
     };
 
@@ -236,11 +236,11 @@ sub _index_files {
         foreach my $file ($package->files()) {
             my $mode = shift @modes;
             my $md5sum = shift @md5sums;
-            push(@{$files{$file}}, {
-                package => $package,
-                mode    => $mode,
-                md5sum  => $md5sum
-            });
+            push(@{$files{$file}}, [
+                $package,
+                $mode,
+                $md5sum
+            ]);
         }
     };
 

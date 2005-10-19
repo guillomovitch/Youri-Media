@@ -16,6 +16,12 @@ use Carp;
 use strict;
 use warnings;
 
+use constant PROVIDE_PACKAGE => 0;
+use constant PROVIDE_RANGE => 1;
+
+use constant FILE_PACKAGE => 0;
+use constant FILE_MODE => 1;
+use constant FILE_MD5SUM => 2;
 
 =head2 new(I<$class>, I<option_name1, option_value1, ...>)
 
