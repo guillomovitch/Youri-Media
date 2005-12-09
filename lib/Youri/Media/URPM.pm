@@ -111,8 +111,8 @@ sub rpmlint_config {
 }
 
 
-sub check_files {
-    my ($self, $check) = @_;
+sub traverse_files {
+    my ($self, $function) = @_;
     croak "Not a class method" unless ref $self;
 
     my $callback = sub {
@@ -123,18 +123,18 @@ sub check_files {
         my $package = Youri::Package::URPM->new(file => $File::Find::name);
         return if $self->{_skip_archs}->{$package->arch()};
 
-        $check->($File::Find::name, $package);
+        $function->($File::Find::name, $package);
     };
 
     find($callback, $self->{_path});
 }
 
-sub check_headers {
-    my ($self, $check) = @_;
+sub traverse_headers {
+    my ($self, $function) = @_;
     croak "Not a class method" unless ref $self;
 
     $self->{_urpm}->traverse(sub {
-        $check->(Youri::Package::URPM->new(header => $_[0]));
+        $function->(Youri::Package::URPM->new(header => $_[0]));
     });
     
 }

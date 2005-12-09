@@ -102,7 +102,9 @@ sub allow_dep {
     my ($self, $dep) = @_;
     croak "Not a class method" unless ref $self;
 
-    return $self->{_allow_deps}->{all} || $self->{_allow_deps}->{$dep};
+    return
+        $self->{_allow_deps}->{all} ||
+        $self->{_allow_deps}->{$dep};
 }
 
 =head2 skip_archs()
@@ -128,7 +130,9 @@ sub skip_arch {
     my ($self, $arch) = @_;
     croak "Not a class method" unless ref $self;
 
-    return $self->{_skip_archs}->{all} || $self->{_skip_archs}->{$arch};
+    return
+        $self->{_skip_archs}->{all} ||
+        $self->{_skip_archs}->{$arch};
 }
 
 =head2 skip_inputs()
@@ -153,19 +157,17 @@ sub skip_input {
     my ($self, $input) = @_;
     croak "Not a class method" unless ref $self;
 
-    return $self->{_skip_inputs}->{all} || $self->{_skip_inputs}->{$input};
+    return
+        $self->{_skip_inputs}->{all} ||
+        $self->{_skip_inputs}->{$input};
 }
 
-sub check_files {
-    my ($self) = @_;
-    croak "No check_files() method in class " . ref($self);
-
+sub traverse_files {
+    croak "Not implemented";
 }
 
-sub check_headers {
-    my ($self) = @_;
-    croak "No check_headers() method in class " . ref($self);
-
+sub traverse_headers {
+    croak "Not implemented";
 }
 
 1;
