@@ -1,6 +1,20 @@
 # $Id$
 package Youri::Media::URPM;
 
+=head1 NAME
+
+Youri::Media::URPM - URPM-based Media class
+
+=head1 DESCRIPTION
+
+This is an URPM-based Media class implementation.
+
+It can be created either from local or remote full (hdlist) or partial
+(synthesis) compressed header files, or from a package directory. File-based
+inputs are only usable with this latest option.
+
+=cut
+
 use URPM;
 use File::Find;
 use File::Temp ();
@@ -12,6 +26,40 @@ use warnings;
 use Youri::Package::URPM;
 
 use base 'Youri::Media::Base';
+
+=head1 CLASS METHODS
+
+=head2 new(I<%hash>)
+
+Returns a C<Youri::Media::URPM> object.
+
+Specific parameters:
+
+=over
+
+=item B<hdlist>
+
+URL of the hdlist file used for creating this media.
+
+=item B<synthesis>
+
+URL of the synthesis file used for creating this media.
+
+=item B<path>
+
+path of the package directory used for creating this media.
+
+=item B<max_age>
+
+maximum age of packages for this media.
+
+=item B<rpmlint_config>
+
+rpmlint configuration file for this media.
+
+=back
+
+=cut
 
 sub _init {
     my $self   = shift;
@@ -96,6 +144,14 @@ sub _remove_archs {
     ];
 }
 
+=head1 INSTANCE METHODS
+
+=head2 max_age()
+
+Returns maximum age of packages for this media.
+
+=cut
+
 sub max_age {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
@@ -103,13 +159,18 @@ sub max_age {
     return $self->{_max_age};
 }
 
+=head2 rpmlint_config()
+
+Returns rpmlint configuration file for this media.
+
+=cut
+
 sub rpmlint_config {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
     return $self->{_rpmlint_config};
 }
-
 
 sub traverse_files {
     my ($self, $function) = @_;
@@ -162,4 +223,5 @@ sub _get_file {
         return $file;
     }
 }
+
 1;

@@ -3,22 +3,55 @@ package Youri::Media::Base;
 
 =head1 NAME
 
-Youri::Media::Base - Youri Base Media Class
+Youri::Media::Base - Abstract Media class
 
 =head1 DESCRIPTION
 
-This module implements the base Media class
+This is the abstract Media class defining generic interface.
 
 =cut
-
 
 use Carp;
 use strict;
 use warnings;
 
-=head2 new(I<$class>, I<option_name1, option_value1, ...>)
+=head1 CLASS METHODS
 
-Instantiates a Base Media object.
+=head2 new(I<%hash>)
+
+Returns a C<Youri::Media::Base> object.
+
+Generic parameters:
+
+=over
+
+=item B<id>
+
+id of this media.
+
+=item B<test>
+
+don't perform anything for real.
+
+=item B<verbose>
+
+verbosity level.
+
+=item B<allow_deps>
+
+list of ids of medias allowed to provide dependencies.
+
+=item B<skip_inputs>
+
+list of ids of inputs to be skipped.
+
+=item B<skip_archs>
+
+list of archs to be skipped.
+
+=back
+
+Warning: do not call directly, call subclass constructor instead.
 
 =cut
 
@@ -66,9 +99,11 @@ sub _init {
     # do nothing
 }
 
+=head1 INSTANCE METHODS
+
 =head2 id()
 
-Returns the id of the Media
+Returns the id of this media.
 
 =cut
 
@@ -81,7 +116,8 @@ sub id {
 
 =head2 allow_deps()
 
-Returns the list of allowed dependant medias
+Returns the list of id of medias allowed to provide dependencies for this
+media. 
 
 =cut
 
@@ -92,9 +128,10 @@ sub allow_deps {
     return keys %{$self->{_allow_deps}};
 }
 
-=head2 allow_dep(I<$media>)
+=head2 allow_dep(I<$media_id>)
 
-tells wether the I<$media> is an allowed dependant media
+Tells wether media with id I<$media_id> is allowed to provide dependencies for
+this media.
 
 =cut
 
@@ -109,7 +146,7 @@ sub allow_dep {
 
 =head2 skip_archs()
 
-Returns the list of skipped archs
+Returns the list of arch which are to be skipped for this media.
 
 =cut
 
@@ -122,7 +159,7 @@ sub skip_archs {
 
 =head2 skip_arch(I<$arch>)
 
-tells wether the I<$arch> is skipped
+Tells wether arch I<$arch> is to be skipped for this media.
 
 =cut
 
@@ -137,7 +174,7 @@ sub skip_arch {
 
 =head2 skip_inputs()
 
-returns the list of skipped inputs
+Returns the list of id of input which are to be skipped for this media.
 
 =cut
 
@@ -148,11 +185,12 @@ sub skip_inputs {
     return keys %{$self->{_skip_inputs}};
 }
 
-=head2 skip_input(I<$input>)
+=head2 skip_input(I<$input_id>)
 
-tells wether the I<$input> is skipped
+Tells wether input with id I<$input_id> is to be skipped for this media.
 
 =cut
+
 sub skip_input {
     my ($self, $input) = @_;
     croak "Not a class method" unless ref $self;
@@ -162,12 +200,31 @@ sub skip_input {
         $self->{_skip_inputs}->{$input};
 }
 
+=head2 traverse_files(I<$function>)
+
+Apply function I<$function> to all files of this media.
+
+=cut
+
 sub traverse_files {
     croak "Not implemented";
 }
 
+=head2 traverse_headers(I<$function>)
+
+Apply function I<$function> to all headers of this media.
+
+=cut
+
 sub traverse_headers {
     croak "Not implemented";
 }
+
+=head1 SUBCLASSING
+
+B<traverse_headers> and B<traverse_files> are to be overrided, default
+implementation dies immediatly.
+
+=cut
 
 1;
