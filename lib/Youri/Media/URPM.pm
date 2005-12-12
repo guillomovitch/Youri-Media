@@ -37,17 +37,22 @@ Specific parameters:
 
 =over
 
-=item B<hdlist>
-
-URL of the hdlist file used for creating this media.
-
 =item B<synthesis>
 
-URL of the synthesis file used for creating this media.
+URL of the synthesis file used for creating this media. If a list is given, the
+first successfully accessed will be used, so as to allow better reliability.
+
+=item B<hdlist>
+
+URL of the hdlist file used for creating this media. If a list is given, the
+first successfully accessed will be used, so as to allow better reliability.
+
 
 =item B<path>
 
-path of the package directory used for creating this media.
+path of the package directory used for creating this media. If a list is given,
+the first successfully accessed will be used, so as to allow better
+reliability.
 
 =item B<max_age>
 
@@ -58,6 +63,9 @@ maximum age of packages for this media.
 rpmlint configuration file for this media.
 
 =back
+
+In case of multiple B<synthesis>, B<hdlist> and B<path> options given, they
+will be tried in this order, so as to minimize parsing time.
 
 =cut
 
@@ -76,44 +84,65 @@ sub _init {
     my $urpm = URPM->new();
     SOURCE: {
         if ($options{synthesis}) {
-            print "Attempting to retrieve synthesis from $options{synthesis}\n" if $options{verbose};
-            my $synthesis = $self->_get_file($options{synthesis});
-            if ($synthesis) {
-                $urpm->parse_synthesis($synthesis, keep_all_tags => 1);
-                last SOURCE;
+            foreach my $file (
+                ref $options{synthesis} eq 'ARRAY' ?
+                    @{$options{synthesis}} :
+                    $options{synthesis}
+            ) {
+                print "Attempting to retrieve synthesis $file\n"
+                    if $options{verbose};
+                my $synthesis = $self->_get_file($file);
+                if ($synthesis) {
+                    $urpm->parse_synthesis($synthesis, keep_all_tags => 1);
+                    last SOURCE;
+                }
             }
         }
 
         if ($options{hdlist}) { 
-            print "Attempting to retrieve hdlist from $options{hdlist}\n" if $options{verbose};
-            my $hdlist = $self->_get_file($options{hdlist});
-            if ($hdlist) {
-                $urpm->parse_hdlist($hdlist, keep_all_tags => 1);
-                last SOURCE;
+            foreach my $file (
+                ref $options{hdlist} eq 'ARRAY' ?
+                    @{$options{hdlist}} :
+                    $options{hdlist}
+            ) {
+                print "Attempting to retrieve hdlist $file}\n"
+                    if $options{verbose};
+                my $hdlist = $self->_get_file($file);
+                if ($hdlist) {
+                    $urpm->parse_hdlist($hdlist, keep_all_tags => 1);
+                    last SOURCE;
+                }
             }
         }
 
         if ($options{path}) {
-            print "Attempting to scan directory $options{path}\n" if $options{verbose};
-            unless (-d $options{path}) {
-                carp "non-existing dir $options{path}";
+            foreach my $path (
+                ref $options{path} eq 'ARRAY' ?
+                    @{$options{path}} :
+                    $options{path}
+            ) {
+                print "Attempting to scan directory $path\n"
+                    if $options{verbose};
+                unless (-d $path) {
+                    carp "non-existing directory $path";
+                    next;
+                }
+                unless (-r $path) {
+                    carp "non-readable directory $path";
+                    next;
+                }
+
+                my $parse = sub {
+                    return unless -f $File::Find::name;
+                    return unless -r $File::Find::name;
+                    return unless /\.rpm$/;
+
+                    $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
+                };
+
+                find($parse, $path);
                 last SOURCE;
             }
-            unless (-r $options{path}) {
-                carp "non-readable dir $options{path}";
-                last SOURCE;
-            }
-
-            my $parse = sub {
-            return unless -f $File::Find::name;
-            return unless -r $File::Find::name;
-            return unless /\.rpm$/;
-
-            $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
-            };
-
-            find($parse, $options{path});
-            last SOURCE;
         }
         
         croak "no source specified";
