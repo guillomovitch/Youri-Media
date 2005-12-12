@@ -105,7 +105,7 @@ sub _init {
                     @{$options{hdlist}} :
                     $options{hdlist}
             ) {
-                print "Attempting to retrieve hdlist $file}\n"
+                print "Attempting to retrieve hdlist $file\n"
                     if $options{verbose};
                 my $hdlist = $self->_get_file($file);
                 if ($hdlist) {
