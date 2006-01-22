@@ -62,13 +62,14 @@ sub new {
         test           => 0,     # test mode
         verbose        => 0,     # verbose mode
         allow_deps     => undef, # list of media ids from which deps are allowed
+        allow_srcs     => undef, # list of media ids from which packages can be built		
         skip_inputs    => undef, # list of inputs ids to skip
         skip_archs     => undef, # list of archs for which to skip tests
         @_
     );
 
     # some options need to be arrays. Check it and convert to hashes
-    foreach my $option (qw(allow_deps skip_archs skip_inputs)) {
+    foreach my $option (qw(allow_deps allow_srcs skip_archs skip_inputs)) {
         next unless defined $options{$option};
         croak "$option should be an arrayref" unless ref $options{$option} eq 'ARRAY';
         $options{$option}  = {
@@ -79,6 +80,7 @@ sub new {
     my $self = bless {
         _id             => $options{id}, 
         _allow_deps     => $options{allow_deps}, 
+        _allow_srcs     => $options{allow_srcs},
         _skip_archs     => $options{skip_archs},
         _skip_inputs    => $options{skip_inputs},
     }, $class;
@@ -142,6 +144,32 @@ sub allow_dep {
     return
         $self->{_allow_deps}->{all} ||
         $self->{_allow_deps}->{$dep};
+}
+
+=head2 allow_srcs()
+
+Returns the list medias where the source packages can be
+
+=cut
+
+sub allow_srcs {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return keys %{$self->{_allow_srcs}};
+}
+
+=head2 allow_src(I<$media>)
+
+Tells wether a package in current media can have its source package in I<$media>
+
+=cut
+
+sub allow_src {
+    my ($self, $src) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_allow_srcs}->{all} || $self->{_allow_srcs}->{$src};
 }
 
 =head2 skip_archs()
