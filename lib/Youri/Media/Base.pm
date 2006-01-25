@@ -3,11 +3,11 @@ package Youri::Media::Base;
 
 =head1 NAME
 
-Youri::Media::Base - Abstract Media class
+Youri::Media::Base - Abstract media class
 
 =head1 DESCRIPTION
 
-This is the abstract Media class defining generic interface.
+This abstract class defines Youri::Media interface.
 
 =cut
 
@@ -17,39 +17,41 @@ use warnings;
 
 =head1 CLASS METHODS
 
-=head2 new(I<%hash>)
+=head2 new(%args)
 
-Returns a C<Youri::Media::Base> object.
+Creates and returns a new Youri::Media object.
 
 Generic parameters:
 
 =over
 
-=item B<id>
+=item id $id
 
-id of this media.
+Media identity.
 
-=item B<test>
+=item test true/false
 
-don't perform anything for real.
+Test mode (default: false).
 
-=item B<verbose>
+=item verbose true/false
 
-verbosity level.
+Verbose mode (default: false).
 
-=item B<allow_deps>
+=item allow_deps $media_ids
 
 list of ids of medias allowed to provide dependencies.
 
-=item B<skip_inputs>
+=item skip_inputs $input_ids
 
-list of ids of inputs to be skipped.
+list of ids of input modules to skip.
 
-=item B<skip_archs>
+=item skip_archs $arches
 
-list of archs to be skipped.
+list of arches to skip.
 
 =back
+
+Subclass may define additional parameters.
 
 Warning: do not call directly, call subclass constructor instead.
 
@@ -130,9 +132,9 @@ sub allow_deps {
     return keys %{$self->{_allow_deps}};
 }
 
-=head2 allow_dep(I<$media_id>)
+=head2 allow_dep($media_id)
 
-Tells wether media with id I<$media_id> is allowed to provide dependencies for
+Tells wether media with given id is allowed to provide dependencies for
 this media.
 
 =cut
@@ -159,9 +161,10 @@ sub allow_srcs {
     return keys %{$self->{_allow_srcs}};
 }
 
-=head2 allow_src(I<$media>)
+=head2 allow_src($media_id)
 
-Tells wether a package in current media can have its source package in I<$media>
+Tells wether media with given id is allowed to host sources dependencies for
+this media.
 
 =cut
 
@@ -185,9 +188,9 @@ sub skip_archs {
     return keys %{$self->{_skip_archs}};
 }
 
-=head2 skip_arch(I<$arch>)
+=head2 skip_arch($arch)
 
-Tells wether arch I<$arch> is to be skipped for this media.
+Tells wether given arch is to be skipped for this media.
 
 =cut
 
@@ -213,9 +216,9 @@ sub skip_inputs {
     return keys %{$self->{_skip_inputs}};
 }
 
-=head2 skip_input(I<$input_id>)
+=head2 skip_input($input_id)
 
-Tells wether input with id I<$input_id> is to be skipped for this media.
+Tells wether input with given id is to be skipped for this media.
 
 =cut
 
@@ -228,9 +231,9 @@ sub skip_input {
         $self->{_skip_inputs}->{$input};
 }
 
-=head2 traverse_files(I<$function>)
+=head2 traverse_files($function)
 
-Apply function I<$function> to all files of this media.
+Apply given function to all files of this media.
 
 =cut
 
@@ -238,9 +241,9 @@ sub traverse_files {
     croak "Not implemented";
 }
 
-=head2 traverse_headers(I<$function>)
+=head2 traverse_headers($function)
 
-Apply function I<$function> to all headers of this media.
+Apply given function to all headers of this media.
 
 =cut
 
@@ -250,8 +253,15 @@ sub traverse_headers {
 
 =head1 SUBCLASSING
 
-B<traverse_headers> and B<traverse_files> are to be overrided, default
-implementation dies immediatly.
+The following methods have to be implemented:
+
+=over
+
+=item traverse_headers
+
+=item traverse_files
+
+=back
 
 =cut
 

@@ -3,11 +3,11 @@ package Youri::Media::URPM;
 
 =head1 NAME
 
-Youri::Media::URPM - URPM-based Media class
+Youri::Media::URPM - URPM-based media implementation
 
 =head1 DESCRIPTION
 
-This is an URPM-based Media class implementation.
+This is an URPM-based L<Youri::Media::Base> implementation.
 
 It can be created either from local or remote full (hdlist) or partial
 (synthesis) compressed header files, or from a package directory. File-based
@@ -29,36 +29,37 @@ use base 'Youri::Media::Base';
 
 =head1 CLASS METHODS
 
-=head2 new(I<%hash>)
+=head2 new(%args)
 
-Returns a C<Youri::Media::URPM> object.
+Creates and returns a new Youri::Media::URPM object.
 
 Specific parameters:
 
 =over
 
-=item B<synthesis>
+=item synthesis $synthesis
 
-URL of the synthesis file used for creating this media. If a list is given, the
-first successfully accessed will be used, so as to allow better reliability.
+Path, URL or list of path or URL of synthesis file used for creating
+this media. If a list is given, the first successfully accessed will be used,
+so as to allow better reliability.
 
-=item B<hdlist>
+=item hdlist $hdlist
 
-URL of the hdlist file used for creating this media. If a list is given, the
-first successfully accessed will be used, so as to allow better reliability.
+Path, URL or list of path or URL of hdlist file used for creating
+this media. If a list is given, the first successfully accessed will be used,
+so as to allow better reliability.
 
+=item path $path
 
-=item B<path>
+Path or list of pathes of package directory used for creating this
+media. If a list is given, the first successfully accessed will be used, so as
+to allow better reliability.
 
-path of the package directory used for creating this media. If a list is given,
-the first successfully accessed will be used, so as to allow better
-reliability.
+=item max_age $age
 
-=item B<max_age>
+Maximum age of packages for this media.
 
-maximum age of packages for this media.
-
-=item B<rpmlint_config>
+=item rpmlint_config $file
 
 rpmlint configuration file for this media.
 
