@@ -7,7 +7,7 @@ Youri::Media::URPM - URPM-based media implementation
 
 =head1 DESCRIPTION
 
-This is an URPM-based L<Youri::Media::Base> implementation.
+This is an URPM-based L<Youri::Media> implementation.
 
 It can be created either from local or remote full (hdlist) or partial
 (synthesis) compressed header files, or from a package directory. File-based
@@ -23,7 +23,7 @@ use LWP::Simple;
 use Carp;
 use strict;
 use warnings;
-use Youri::Package::URPM;
+use Youri::Package;
 
 use base 'Youri::Media::Base';
 

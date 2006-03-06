@@ -1,9 +1,9 @@
 # $Id$
-package Youri::Media::Base;
+package Youri::Media;
 
 =head1 NAME
 
-Youri::Media::Base - Abstract media class
+Youri::Media - Abstract media class
 
 =head1 DESCRIPTION
 
