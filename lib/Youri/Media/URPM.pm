@@ -23,9 +23,9 @@ use LWP::Simple;
 use Carp;
 use strict;
 use warnings;
-use Youri::Package;
+use Youri::Package::URPM;
 
-use base 'Youri::Media::Base';
+use base 'Youri::Media';
 
 =head1 CLASS METHODS
 
