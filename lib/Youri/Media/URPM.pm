@@ -212,7 +212,7 @@ sub traverse_files {
         return unless $_ =~ /\.rpm$/;
 
         my $package = Youri::Package::URPM->new(file => $File::Find::name);
-        return if $self->{_skip_archs}->{$package->arch()};
+        return if $self->{_skip_archs}->{$package->get_arch()};
 
         $function->($File::Find::name, $package);
     };
