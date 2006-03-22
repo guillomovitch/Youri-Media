@@ -25,13 +25,13 @@ Generic parameters:
 
 =over
 
+=item id $id
+
+Media id.
+
 =item name $name
 
 Media name.
-
-=item canonical_name $canonical_name
-
-Media canonical_name.
 
 =item type $type (source/binary)
 
@@ -95,7 +95,7 @@ sub new {
 
     my $self = bless {
         _id             => $options{id}, 
-        _canonical_name => $options{canonical_name} || $options{id}, 
+        _name           => $options{name} || $options{id}, 
         _type           => $options{type}, 
         _allow_deps     => $options{allow_deps}, 
         _allow_srcs     => $options{allow_srcs},
@@ -134,17 +134,17 @@ sub get_id {
     return $self->{_id};
 }
 
-=head2 get_canonical_name()
+=head2 get_name()
 
-Returns the canonical name of this media.
+Returns the name of this media.
 
 =cut
 
-sub get_canonical_name {
+sub get_name {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
-    return $self->{_canonical_name};
+    return $self->{_name};
 }
 
 =head2 get_type()
