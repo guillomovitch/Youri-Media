@@ -82,7 +82,7 @@ sub new {
 
     croak "No type given" unless $options{type};
     croak "Wrong value for type: $options{type}"
-        unless $options{type} =~ /$(?:binary|source)$/o;
+        unless $options{type} =~ /^(?:binary|source)$/o;
 
     # some options need to be arrays. Check it and convert to hashes
     foreach my $option (qw(allow_deps allow_srcs skip_archs skip_inputs)) {
