@@ -29,6 +29,10 @@ Generic parameters:
 
 Media identity.
 
+=item type $type (source/binary)
+
+Media type.
+
 =item test true/false
 
 Test mode (default: false).
@@ -63,12 +67,17 @@ sub new {
         id             => '',    # object id
         test           => 0,     # test mode
         verbose        => 0,     # verbose mode
+        type           => '',    # media type
         allow_deps     => undef, # list of media ids from which deps are allowed
         allow_srcs     => undef, # list of media ids from which packages can be built		
         skip_inputs    => undef, # list of inputs ids to skip
         skip_archs     => undef, # list of archs for which to skip tests
         @_
     );
+
+    croak "No type given" unless $options{type};
+    croak "Wrong value for type: $options{type}"
+        unless $options{type} =~ /$(?:binary|source)$/o;
 
     # some options need to be arrays. Check it and convert to hashes
     foreach my $option (qw(allow_deps allow_srcs skip_archs skip_inputs)) {
@@ -81,6 +90,7 @@ sub new {
 
     my $self = bless {
         _id             => $options{id}, 
+        _type           => $options{type}, 
         _allow_deps     => $options{allow_deps}, 
         _allow_srcs     => $options{allow_srcs},
         _skip_archs     => $options{skip_archs},
@@ -116,6 +126,19 @@ sub id {
     croak "Not a class method" unless ref $self;
 
     return $self->{_id};
+}
+
+=head2 get_type()
+
+Returns the type of this media.
+
+=cut
+
+sub get_type {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_type};
 }
 
 =head2 allow_deps()
