@@ -29,6 +29,10 @@ Generic parameters:
 
 Media identity.
 
+=item canonical_name $name
+
+Media canonical_name.
+
 =item type $type (source/binary)
 
 Media type.
@@ -68,6 +72,7 @@ sub new {
         test           => 0,     # test mode
         verbose        => 0,     # verbose mode
         type           => '',    # media type
+        canonical_name => '',    # media canonical name
         allow_deps     => undef, # list of media ids from which deps are allowed
         allow_srcs     => undef, # list of media ids from which packages can be built		
         skip_inputs    => undef, # list of inputs ids to skip
@@ -91,6 +96,7 @@ sub new {
     my $self = bless {
         _id             => $options{id}, 
         _type           => $options{type}, 
+        _canonical_name => $options{canonical_name} || $options{id}, 
         _allow_deps     => $options{allow_deps}, 
         _allow_srcs     => $options{allow_srcs},
         _skip_archs     => $options{skip_archs},
@@ -139,6 +145,19 @@ sub get_type {
     croak "Not a class method" unless ref $self;
 
     return $self->{_type};
+}
+
+=head2 get_canonical_name()
+
+Returns the canonical name of this media.
+
+=cut
+
+sub get_canonical_name {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_canonical_name};
 }
 
 =head2 allow_deps()
