@@ -94,8 +94,8 @@ sub new {
     }
 
     my $self = bless {
-        _name           => $options{name}, 
-        _canonical_name => $options{canonical_name} || $options{name}, 
+        _id             => $options{id}, 
+        _canonical_name => $options{canonical_name} || $options{id}, 
         _type           => $options{type}, 
         _allow_deps     => $options{allow_deps}, 
         _allow_srcs     => $options{allow_srcs},
@@ -121,13 +121,13 @@ sub _init {
 
 =head1 INSTANCE METHODS
 
-=head2 get_name()
+=head2 get_id()
 
-Returns media name.
+Returns media identity.
 
 =cut
 
-sub get_name {
+sub get_id {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
