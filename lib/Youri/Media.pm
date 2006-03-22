@@ -235,21 +235,9 @@ sub skip_input {
 
 Apply given function to all files of this media.
 
-=cut
-
-sub traverse_files {
-    croak "Not implemented";
-}
-
 =head2 traverse_headers($function)
 
 Apply given function to all headers of this media.
-
-=cut
-
-sub traverse_headers {
-    croak "Not implemented";
-}
 
 =head1 SUBCLASSING
 
