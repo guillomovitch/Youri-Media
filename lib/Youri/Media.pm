@@ -115,13 +115,13 @@ sub _init {
 
 =head1 INSTANCE METHODS
 
-=head2 id()
+=head2 get_id()
 
-Returns the id of this media.
+Returns media identity.
 
 =cut
 
-sub id {
+sub get_id {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
