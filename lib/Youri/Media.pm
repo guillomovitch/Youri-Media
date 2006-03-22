@@ -25,11 +25,11 @@ Generic parameters:
 
 =over
 
-=item id $id
+=item name $name
 
-Media identity.
+Media name.
 
-=item canonical_name $name
+=item canonical_name $canonical_name
 
 Media canonical_name.
 
@@ -68,11 +68,11 @@ Warning: do not call directly, call subclass constructor instead.
 sub new {
     my $class   = shift;
     my %options = (
-        id             => '',    # object id
+        name           => '',    # media name
+        canonical_name => '',    # media canonical name
+        type           => '',    # media type
         test           => 0,     # test mode
         verbose        => 0,     # verbose mode
-        type           => '',    # media type
-        canonical_name => '',    # media canonical name
         allow_deps     => undef, # list of media ids from which deps are allowed
         allow_srcs     => undef, # list of media ids from which packages can be built		
         skip_inputs    => undef, # list of inputs ids to skip
@@ -94,9 +94,9 @@ sub new {
     }
 
     my $self = bless {
-        _id             => $options{id}, 
+        _name           => $options{name}, 
+        _canonical_name => $options{canonical_name} || $options{name}, 
         _type           => $options{type}, 
-        _canonical_name => $options{canonical_name} || $options{id}, 
         _allow_deps     => $options{allow_deps}, 
         _allow_srcs     => $options{allow_srcs},
         _skip_archs     => $options{skip_archs},
@@ -121,30 +121,17 @@ sub _init {
 
 =head1 INSTANCE METHODS
 
-=head2 get_id()
+=head2 get_name()
 
-Returns media identity.
+Returns media name.
 
 =cut
 
-sub get_id {
+sub get_name {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
     return $self->{_id};
-}
-
-=head2 get_type()
-
-Returns the type of this media.
-
-=cut
-
-sub get_type {
-    my ($self) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return $self->{_type};
 }
 
 =head2 get_canonical_name()
@@ -158,6 +145,19 @@ sub get_canonical_name {
     croak "Not a class method" unless ref $self;
 
     return $self->{_canonical_name};
+}
+
+=head2 get_type()
+
+Returns the type of this media.
+
+=cut
+
+sub get_type {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_type};
 }
 
 =head2 allow_deps()
