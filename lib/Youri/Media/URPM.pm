@@ -202,6 +202,13 @@ sub rpmlint_config {
     return $self->{_rpmlint_config};
 }
 
+sub get_package_class {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return "Youri::Package::URPM";
+}
+
 sub traverse_files {
     my ($self, $function) = @_;
     croak "Not a class method" unless ref $self;

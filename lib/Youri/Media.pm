@@ -273,6 +273,10 @@ sub skip_input {
         $self->{_skip_inputs}->{$input};
 }
 
+=head2 get_package_class()
+
+Return package class for this media.
+
 =head2 traverse_files($function)
 
 Apply given function to all files of this media.
