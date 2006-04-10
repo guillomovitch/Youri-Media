@@ -80,6 +80,8 @@ sub new {
         @_
     );
 
+    croak "Abstract class" if $class eq __PACKAGE__;
+
     croak "No type given" unless $options{type};
     croak "Wrong value for type: $options{type}"
         unless $options{type} =~ /^(?:binary|source)$/o;
