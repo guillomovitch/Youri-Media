@@ -66,7 +66,9 @@ Warning: do not call directly, call subclass constructor instead.
 =cut
 
 sub new {
-    my $class   = shift;
+    my $class = shift;
+    croak "Abstract class" if $class eq __PACKAGE__;
+
     my %options = (
         name           => '',    # media name
         canonical_name => '',    # media canonical name
@@ -80,7 +82,6 @@ sub new {
         @_
     );
 
-    croak "Abstract class" if $class eq __PACKAGE__;
 
     croak "No type given" unless $options{type};
     croak "Wrong value for type: $options{type}"
