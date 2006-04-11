@@ -51,7 +51,7 @@ list of ids of medias allowed to provide dependencies.
 
 =item skip_inputs $input_ids
 
-list of ids of input modules to skip.
+list of ids of input plugins to skip.
 
 =item skip_archs $arches
 
