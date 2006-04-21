@@ -232,6 +232,7 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     $self->{_urpm}->traverse(sub {
+        local $_; # workaround mysterious problem between URPM and AppConfig
         $function->(Youri::Package::URPM->new(header => $_[0]));
     });
     
