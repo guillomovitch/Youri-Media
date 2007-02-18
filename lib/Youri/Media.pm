@@ -15,6 +15,8 @@ use Carp;
 use strict;
 use warnings;
 
+our $VERSION = 0.1;
+
 =head1 CLASS METHODS
 
 =head2 new(%args)
@@ -45,17 +47,17 @@ Test mode (default: false).
 
 Verbose mode (default: false).
 
-=item allow_deps $media_ids
+=item options $options
 
-list of ids of medias allowed to provide dependencies.
+Hash of test-specific options.
 
-=item skip_inputs $input_ids
+=item skip_tests $tests
 
-list of ids of input plugins to skip.
+List of tests to skip.
 
 =item skip_archs $arches
 
-list of arches to skip.
+List of arches to skip.
 
 =back
 
@@ -75,35 +77,35 @@ sub new {
         type           => '',    # media type
         test           => 0,     # test mode
         verbose        => 0,     # verbose mode
-        allow_deps     => undef, # list of media ids from which deps are allowed
-        allow_srcs     => undef, # list of media ids from which packages can be built		
-        skip_inputs    => undef, # list of inputs ids to skip
-        skip_archs     => undef, # list of archs for which to skip tests
+        options        => undef,
         @_
     );
 
 
     croak "No type given" unless $options{type};
     croak "Wrong value for type: $options{type}"
-        unless $options{type} =~ /^(?:binary|source)$/o;
+        unless $options{type} =~ /^(?:binary|source)$/;
 
     # some options need to be arrays. Check it and convert to hashes
-    foreach my $option (qw(allow_deps allow_srcs skip_archs skip_inputs)) {
+    foreach my $option (qw(skip_archs skip_tests)) {
         next unless defined $options{$option};
-        croak "$option should be an arrayref" unless ref $options{$option} eq 'ARRAY';
+        croak "$option should be an arrayref"
+            unless ref $options{$option} eq 'ARRAY';
         $options{$option}  = {
             map { $_ => 1 } @{$options{$option}}
         };
     }
 
+    croak "options should be an hashref"
+        if $options{options} && ref $options{options} ne 'HASH';
+
     my $self = bless {
-        _id             => $options{id}, 
-        _name           => $options{name} || $options{id}, 
-        _type           => $options{type}, 
-        _allow_deps     => $options{allow_deps}, 
-        _allow_srcs     => $options{allow_srcs},
-        _skip_archs     => $options{skip_archs},
-        _skip_inputs    => $options{skip_inputs},
+        _id         => $options{id}, 
+        _name       => $options{name} || $options{id}, 
+        _type       => $options{type}, 
+        _options    => $options{options}, 
+        _skip_archs => $options{skip_archs},
+        _skip_tests => $options{skip_tests},
     }, $class;
 
     $self->_init(%options);
@@ -163,61 +165,17 @@ sub get_type {
     return $self->{_type};
 }
 
-=head2 allow_deps()
+=head2 get_option($test, $option)
 
-Returns the list of id of medias allowed to provide dependencies for this
-media. 
-
-=cut
-
-sub allow_deps {
-    my ($self) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return keys %{$self->{_allow_deps}};
-}
-
-=head2 allow_dep($media_id)
-
-Tells wether media with given id is allowed to provide dependencies for
-this media.
+Returns a specific option for given test.
 
 =cut
 
-sub allow_dep {
-    my ($self, $dep) = @_;
+sub get_option {
+    my ($self, $test, $option) = @_;
     croak "Not a class method" unless ref $self;
 
-    return
-        $self->{_allow_deps}->{all} ||
-        $self->{_allow_deps}->{$dep};
-}
-
-=head2 allow_srcs()
-
-Returns the list medias where the source packages can be
-
-=cut
-
-sub allow_srcs {
-    my ($self) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return keys %{$self->{_allow_srcs}};
-}
-
-=head2 allow_src($media_id)
-
-Tells wether media with given id is allowed to host sources dependencies for
-this media.
-
-=cut
-
-sub allow_src {
-    my ($self, $src) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return $self->{_allow_srcs}->{all} || $self->{_allow_srcs}->{$src};
+    return $self->{_options}->{$test}->{$option};
 }
 
 =head2 skip_archs()
@@ -248,32 +206,32 @@ sub skip_arch {
         $self->{_skip_archs}->{$arch};
 }
 
-=head2 skip_inputs()
+=head2 skip_tests()
 
-Returns the list of id of input which are to be skipped for this media.
+Returns the list of id of test which are to be skipped for this media.
 
 =cut
 
-sub skip_inputs {
+sub skip_tests {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
-    return keys %{$self->{_skip_inputs}};
+    return keys %{$self->{_skip_tests}};
 }
 
-=head2 skip_input($input_id)
+=head2 skip_test($test_id)
 
-Tells wether input with given id is to be skipped for this media.
+Tells wether test with given id is to be skipped for this media.
 
 =cut
 
-sub skip_input {
-    my ($self, $input) = @_;
+sub skip_test {
+    my ($self, $test) = @_;
     croak "Not a class method" unless ref $self;
 
     return
-        $self->{_skip_inputs}->{all} ||
-        $self->{_skip_inputs}->{$input};
+        $self->{_skip_tests}->{all} ||
+        $self->{_skip_tests}->{$test};
 }
 
 =head2 get_package_class()

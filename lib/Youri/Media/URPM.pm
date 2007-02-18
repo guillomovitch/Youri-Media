@@ -23,7 +23,7 @@ use LWP::Simple;
 use Carp;
 use strict;
 use warnings;
-use Youri::Package::URPM;
+use Youri::Package::RPM::URPM;
 
 use base 'Youri::Media';
 
@@ -51,9 +51,7 @@ so as to allow better reliability.
 
 =item path $path
 
-Path or list of pathes of package directory used for creating this
-media. If a list is given, the first successfully accessed will be used, so as
-to allow better reliability.
+Path of package directory used for creating this media.
 
 =item max_age $age
 
@@ -77,11 +75,21 @@ sub _init {
         hdlist         => '',    # hdlist from which to create this media
         synthesis      => '',    # synthesis from which to create this media
         path           => '',    # directory from which to create this media
-        max_age        => '',    # maximum build age for packages
-        rpmlint_config => '',    # rpmlint configuration for packages
         @_
     );
 
+    # check options
+    if ($options{path}) {
+        if (! -d $options{path}) {
+            carp "non-existing directory $options{path}, dropping";
+        } elsif (! -r $options{path}) {
+            carp "non-readable directory $options{path}, dropping";
+        } else {
+            $self->{_path} = $options{path};
+        }
+    }
+
+    # find source
     my $urpm = URPM->new();
     SOURCE: {
         if ($options{synthesis}) {
@@ -111,48 +119,34 @@ sub _init {
                 my $hdlist = $self->_get_file($file);
                 if ($hdlist) {
                     $urpm->parse_hdlist($hdlist, keep_all_tags => 1);
+                    $self->{_hdlist} = $hdlist;
                     last SOURCE;
                 }
             }
         }
 
-        if ($options{path}) {
-            foreach my $path (
-                ref $options{path} eq 'ARRAY' ?
-                    @{$options{path}} :
-                    $options{path}
-            ) {
-                print "Attempting to scan directory $path\n"
-                    if $options{verbose};
-                unless (-d $path) {
-                    carp "non-existing directory $path";
-                    next;
-                }
-                unless (-r $path) {
-                    carp "non-readable directory $path";
-                    next;
-                }
+        if ($self->{_path}) {
+            print "Attempting to scan directory $self->{_path}\n"
+                if $options{verbose};
 
-                my $parse = sub {
-                    return unless -f $File::Find::name;
-                    return unless -r $File::Find::name;
-                    return unless /\.rpm$/;
+                my $pattern = qr/\.rpm$/;
 
-                    $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
-                };
+            my $parse = sub {
+                return unless -f $File::Find::name;
+                return unless -r $File::Find::name;
+                return unless $_ =~ $pattern;
 
-                find($parse, $path);
-                last SOURCE;
-            }
+                $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
+            };
+
+            find($parse, $self->{_path});
+            last SOURCE;
         }
         
         croak "no source specified";
     }
 
     $self->{_urpm}           = $urpm;
-    $self->{_path}           = $options{path};
-    $self->{_max_age}        = $options{max_age};
-    $self->{_rpmlint_config} = $options{rpmlint_config};
 
     return $self;
 }
@@ -174,51 +168,24 @@ sub _remove_archs {
     ];
 }
 
-=head1 INSTANCE METHODS
-
-=head2 max_age()
-
-Returns maximum age of packages for this media.
-
-=cut
-
-sub max_age {
-    my ($self) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return $self->{_max_age};
-}
-
-=head2 rpmlint_config()
-
-Returns rpmlint configuration file for this media.
-
-=cut
-
-sub rpmlint_config {
-    my ($self) = @_;
-    croak "Not a class method" unless ref $self;
-
-    return $self->{_rpmlint_config};
-}
-
 sub get_package_class {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
-    return "Youri::Package::URPM";
+    return "Youri::Package::RPM::URPM";
 }
 
 sub traverse_files {
     my ($self, $function) = @_;
     croak "Not a class method" unless ref $self;
+    croak "No files for this media" unless $self->{_path};
 
     my $callback = sub {
         return unless -f $File::Find::name;
         return unless -r $File::Find::name;
         return unless $_ =~ /\.rpm$/;
 
-        my $package = Youri::Package::URPM->new(file => $File::Find::name);
+        my $package = Youri::Package::RPM::URPM->new(file => $File::Find::name);
         return if $self->{_skip_archs}->{$package->get_arch()};
 
         $function->($File::Find::name, $package);
@@ -232,10 +199,23 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     $self->{_urpm}->traverse(sub {
-        local $_; # workaround mysterious problem between URPM and AppConfig
-        $function->(Youri::Package::URPM->new(header => $_[0]));
+        $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
     });
     
+}
+
+sub get_hdlist {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_hdlist};
+}
+
+sub get_path {
+    my ($self) = @_;
+    croak "Not a class method" unless ref $self;
+
+    return $self->{_path};
 }
 
 sub _get_file {
