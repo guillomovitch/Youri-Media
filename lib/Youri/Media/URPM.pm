@@ -204,12 +204,26 @@ sub traverse_headers {
     
 }
 
+=head1 INSTANCE METHODS
+
+=head2 get_hdlist()
+
+Returns hdlist used for creating this media, if any.
+
+=cut
+
 sub get_hdlist {
     my ($self) = @_;
     croak "Not a class method" unless ref $self;
 
     return $self->{_hdlist};
 }
+
+=head2 get_path()
+
+Returns path used for creating this media, if any.
+
+=cut
 
 sub get_path {
     my ($self) = @_;
