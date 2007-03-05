@@ -15,14 +15,13 @@ inputs are only usable with this latest option.
 
 =cut
 
-use URPM;
-use File::Find;
-use File::Temp ();
-use Youri::Utils;
-use LWP::Simple;
-use Carp;
 use strict;
 use warnings;
+use Carp;
+use File::Find;
+use File::Temp ();
+use LWP::Simple;
+use URPM;
 use Youri::Package::RPM::URPM;
 
 use base 'Youri::Media';
