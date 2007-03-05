@@ -11,3 +11,16 @@ WriteMakefile(
         'URPM'           => 0,
     }
 );
+
+sub MY::postamble {
+   return <<'EOF';
+.PHONY: svntag
+SVNPATH = svn+ssh://youri.zarb.org/home/projects/youri/svn/soft/Media
+
+svntag:
+	svn copy -m 'new release $(VERSION)'\
+		$(SVNPATH)/trunk \
+		$(SVNPATH)/tags/release-$(VERSION)
+
+EOF
+}
