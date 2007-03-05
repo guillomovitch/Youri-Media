@@ -7,6 +7,7 @@ WriteMakefile(
     AUTHOR       => 'Youri project <youri@zarb.org>',
     PREREQ_PM  => {
         'Youri::Package' => 0,
+        'Youri::Utils'   => 0,
         'LWP::Simple'    => 0,
         'URPM'           => 0,
     }
