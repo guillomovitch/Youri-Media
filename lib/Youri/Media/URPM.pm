@@ -89,7 +89,6 @@ sub _init {
     }
 
     # find source
-    my $urpm = URPM->new();
     SOURCE: {
         if ($options{synthesis}) {
             foreach my $file (
@@ -97,11 +96,9 @@ sub _init {
                     @{$options{synthesis}} :
                     $options{synthesis}
             ) {
-                print "Attempting to retrieve synthesis $file\n"
-                    if $options{verbose};
                 my $synthesis = $self->_get_file($file);
                 if ($synthesis) {
-                    $urpm->parse_synthesis($synthesis, keep_all_tags => 1);
+                    $self->{_synthesis} = $synthesis;
                     last SOURCE;
                 }
             }
@@ -113,11 +110,8 @@ sub _init {
                     @{$options{hdlist}} :
                     $options{hdlist}
             ) {
-                print "Attempting to retrieve hdlist $file\n"
-                    if $options{verbose};
                 my $hdlist = $self->_get_file($file);
                 if ($hdlist) {
-                    $urpm->parse_hdlist($hdlist, keep_all_tags => 1);
                     $self->{_hdlist} = $hdlist;
                     last SOURCE;
                 }
@@ -125,27 +119,11 @@ sub _init {
         }
 
         if ($self->{_path}) {
-            print "Attempting to scan directory $self->{_path}\n"
-                if $options{verbose};
-
-                my $pattern = qr/\.rpm$/;
-
-            my $parse = sub {
-                return unless -f $File::Find::name;
-                return unless -r $File::Find::name;
-                return unless $_ =~ $pattern;
-
-                $urpm->parse_rpm($File::Find::name, keep_all_tags => 1);
-            };
-
-            find($parse, $self->{_path});
             last SOURCE;
         }
         
         croak "no source specified";
     }
-
-    $self->{_urpm}           = $urpm;
 
     return $self;
 }
@@ -197,11 +175,60 @@ sub traverse_headers {
     my ($self, $function) = @_;
     croak "Not a class method" unless ref $self;
 
+    # lazy initialisation
+    $self->_parse_headers() unless $self->{_urpm};
+
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
     });
     
 }
+
+sub _parse_headers {
+    my ($self) = @_;
+
+    $self->{_urpm} = URPM->new();
+    CASE: {
+        if ($self->{_synthesis}) {
+            print "Parsing synthesis $self->{_synthesis}\n"
+                if $self->{_verbose};
+            $self->{_urpm}->parse_synthesis(
+                $self->{_synthesis}, keep_all_tags => 1
+            );
+            last CASE;
+        }
+
+        if ($self->{_hdlist}) {
+            print "Parsing synthesis $self->{_hdlist}\n"
+                if $self->{_verbose};
+            $self->{_urpm}->parse_hdlist(
+                $self->{_hdlist}, keep_all_tags => 1
+            );
+            last CASE;
+        }
+
+        if ($self->{_path}) {
+            print "Parsing directory $self->{_path} content\n"
+                if $self->{_verbose};
+
+            my $pattern = qr/\.rpm$/;
+
+            my $parse = sub {
+                return unless -f $File::Find::name;
+                return unless -r $File::Find::name;
+                return unless $_ =~ $pattern;
+
+                $self->{_urpm}->parse_rpm(
+                    $File::Find::name, keep_all_tags => 1
+                );
+            };
+
+            find($parse, $self->{_path});
+            last CASE;
+        }
+    }
+}
+
 
 =head1 INSTANCE METHODS
 
@@ -235,6 +262,7 @@ sub _get_file {
     my ($self, $file) = @_;
 
     if ($file =~ /^(?:http|ftp):\/\/.*$/) {
+        print "Attempting to retrieve file $file\n" if $self->{_verbose};
         my $tempfile = File::Temp->new();
         my $status = getstore($file, $tempfile->filename());
         unless (is_success($status)) {
