@@ -100,6 +100,7 @@ sub new {
 
     my $self = bless {
         _id         => $options{id}, 
+        _verbose    => $options{verbose}, 
         _name       => $options{name} || $options{id}, 
         _type       => $options{type}, 
         _options    => $options{options}, 
