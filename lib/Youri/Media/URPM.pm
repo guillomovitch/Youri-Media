@@ -176,7 +176,20 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    $self->_parse_headers() unless $self->{_urpm};
+    $self->_parse_headers(0) unless $self->{_urpm};
+
+    $self->{_urpm}->traverse(sub {
+        $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
+    });
+    
+}
+
+sub traverse_full_headers {
+    my ($self, $function) = @_;
+    croak "Not a class method" unless ref $self;
+
+    # lazy initialisation
+    $self->_parse_headers(1) unless $self->{_urpm} && $self->{_full};
 
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
@@ -185,7 +198,7 @@ sub traverse_headers {
 }
 
 sub _parse_headers {
-    my ($self) = @_;
+    my ($self, $full) = @_;
 
     $self->{_urpm} = URPM->new();
     CASE: {
@@ -193,7 +206,7 @@ sub _parse_headers {
             print "Parsing synthesis $self->{_synthesis}\n"
                 if $self->{_verbose};
             $self->{_urpm}->parse_synthesis(
-                $self->{_synthesis}, keep_all_tags => 1
+                $self->{_synthesis}, keep_all_tags => $full
             );
             last CASE;
         }
@@ -202,7 +215,7 @@ sub _parse_headers {
             print "Parsing hdlist $self->{_hdlist}\n"
                 if $self->{_verbose};
             $self->{_urpm}->parse_hdlist(
-                $self->{_hdlist}, keep_all_tags => 1
+                $self->{_hdlist}, keep_all_tags => $full
             );
             last CASE;
         }
@@ -219,7 +232,7 @@ sub _parse_headers {
                 return unless $_ =~ $pattern;
 
                 $self->{_urpm}->parse_rpm(
-                    $File::Find::name, keep_all_tags => 1
+                    $File::Find::name, keep_all_tags => $full
                 );
             };
 
@@ -227,6 +240,7 @@ sub _parse_headers {
             last CASE;
         }
     }
+    $self->{_full} = $full;
 }
 
 
