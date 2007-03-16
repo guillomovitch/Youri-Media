@@ -199,7 +199,7 @@ sub _parse_headers {
         }
 
         if ($self->{_hdlist}) {
-            print "Parsing synthesis $self->{_hdlist}\n"
+            print "Parsing hdlist $self->{_hdlist}\n"
                 if $self->{_verbose};
             $self->{_urpm}->parse_hdlist(
                 $self->{_hdlist}, keep_all_tags => 1
