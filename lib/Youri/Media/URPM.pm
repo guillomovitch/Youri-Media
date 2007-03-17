@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use Carp;
 use File::Find;
-use File::Temp ();
+use File::Temp qw/tempfile/;
 use LWP::Simple;
 use URPM;
 use Youri::Package::RPM::URPM;
@@ -277,13 +277,13 @@ sub _get_file {
 
     if ($file =~ /^(?:http|ftp):\/\/.*$/) {
         print "Attempting to retrieve file $file\n" if $self->{_verbose};
-        my $tempfile = File::Temp->new();
-        my $status = getstore($file, $tempfile->filename());
+        my ($handle, $name) = tempfile(CLEANUP=>1);
+        my $status = getstore($file, $name);
         unless (is_success($status)) {
             carp "invalid URL $file: $status";
             return;
         }
-        return $tempfile;
+        return $name;
     } else {
         unless (-f $file) {
             carp "non-existing file $file";
