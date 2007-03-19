@@ -24,6 +24,12 @@ use LWP::Simple;
 use URPM;
 use Youri::Package::RPM::URPM;
 
+use constant {
+    NONE    => 0,
+    PARTIAL => 1,
+    FULL    => 2
+};
+
 use base 'Youri::Media';
 
 =head1 CLASS METHODS
@@ -60,6 +66,11 @@ Maximum age of packages for this media.
 
 rpmlint configuration file for this media.
 
+=item preload $level
+
+Allows to parse headers at object creation, rather than lazily if really needed.
+(default: Youri::Media::URPM::None)
+
 =back
 
 In case of multiple B<synthesis>, B<hdlist> and B<path> options given, they
@@ -71,9 +82,10 @@ sub _init {
     my $self   = shift;
 
     my %options = (
-        hdlist         => '',    # hdlist from which to create this media
-        synthesis      => '',    # synthesis from which to create this media
-        path           => '',    # directory from which to create this media
+        hdlist    => '',
+        synthesis => '',
+        path      => '',
+        preload   => NONE,
         @_
     );
 
@@ -124,6 +136,8 @@ sub _init {
         
         croak "no source specified";
     }
+
+    $self->_parse_headers($options{preload});
 
     return $self;
 }
@@ -176,7 +190,7 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    $self->_parse_headers(0) unless $self->{_urpm};
+    $self->_parse_headers(PARTIAL);
 
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
@@ -189,7 +203,7 @@ sub traverse_full_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    $self->_parse_headers(1) unless $self->{_urpm} && $self->{_full};
+    $self->_parse_headers(FULL);
 
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
@@ -198,7 +212,9 @@ sub traverse_full_headers {
 }
 
 sub _parse_headers {
-    my ($self, $full) = @_;
+    my ($self, $level) = @_;
+
+    return if $level <= $self->{_level};
 
     $self->{_urpm} = URPM->new();
     CASE: {
@@ -206,7 +222,7 @@ sub _parse_headers {
             print "Parsing synthesis $self->{_synthesis}\n"
                 if $self->{_verbose};
             $self->{_urpm}->parse_synthesis(
-                $self->{_synthesis}, keep_all_tags => $full
+                $self->{_synthesis}, keep_all_tags => ($level == FULL)
             );
             last CASE;
         }
@@ -215,7 +231,7 @@ sub _parse_headers {
             print "Parsing hdlist $self->{_hdlist}\n"
                 if $self->{_verbose};
             $self->{_urpm}->parse_hdlist(
-                $self->{_hdlist}, keep_all_tags => $full
+                $self->{_hdlist}, keep_all_tags => ($level == FULL)
             );
             last CASE;
         }
@@ -232,7 +248,7 @@ sub _parse_headers {
                 return unless $_ =~ $pattern;
 
                 $self->{_urpm}->parse_rpm(
-                    $File::Find::name, keep_all_tags => $full
+                    $File::Find::name, keep_all_tags => ($level == FULL)
                 );
             };
 
@@ -240,7 +256,7 @@ sub _parse_headers {
             last CASE;
         }
     }
-    $self->{_full} = $full;
+    $self->{_level} = $level;
 }
 
 
