@@ -137,6 +137,7 @@ sub _init {
         croak "no source specified";
     }
 
+    $self->{_level} = NONE;
     $self->_parse_headers($options{preload});
 
     return $self;
