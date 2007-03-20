@@ -293,7 +293,7 @@ sub _get_file {
     my ($self, $file) = @_;
 
     if ($file =~ /^(?:http|ftp):\/\/.*$/) {
-        my ($handle, $name) = tempfile(CLEANUP=>1);
+        my ($handle, $name) = tempfile(UNLINK =>1 );
         print "Attempting to download $file as $name\n" if $self->{_verbose};
         my $status = getstore($file, $name);
         unless (is_success($status)) {
