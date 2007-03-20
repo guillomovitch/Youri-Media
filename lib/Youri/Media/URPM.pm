@@ -293,8 +293,8 @@ sub _get_file {
     my ($self, $file) = @_;
 
     if ($file =~ /^(?:http|ftp):\/\/.*$/) {
-        print "Attempting to retrieve file $file\n" if $self->{_verbose};
         my ($handle, $name) = tempfile(CLEANUP=>1);
+        print "Attempting to download $file as $name\n" if $self->{_verbose};
         my $status = getstore($file, $name);
         unless (is_success($status)) {
             carp "invalid URL $file: $status";
