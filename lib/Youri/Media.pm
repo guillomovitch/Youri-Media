@@ -14,7 +14,7 @@ This abstract class defines Youri::Media interface.
 use Carp;
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.1.0');
+use version; our $VERSION = qv('0.2.0');
 
 =head1 CLASS METHODS
 
