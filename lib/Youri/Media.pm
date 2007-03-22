@@ -244,7 +244,11 @@ Apply given function to all files of this media.
 
 =head2 traverse_headers($function)
 
-Apply given function to all headers of this media.
+Apply given function to all headers, partially parsed, of this media.
+
+=head2 traverse_full_headers($function)
+
+Apply given function to all headers, fully parsed, of this media.
 
 =head1 SUBCLASSING
 
@@ -253,6 +257,8 @@ The following methods have to be implemented:
 =over
 
 =item traverse_headers
+
+=item traverse_full_headers
 
 =item traverse_files
 
