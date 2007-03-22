@@ -71,6 +71,10 @@ rpmlint configuration file for this media.
 Allows to parse headers at object creation, rather than lazily if really needed.
 (default: Youri::Media::URPM::None)
 
+=item cache true/false
+
+Cache headers once parsed (default: true)
+
 =back
 
 In case of multiple B<synthesis>, B<hdlist> and B<path> options given, they
@@ -86,6 +90,7 @@ sub _init {
         synthesis => '',
         path      => '',
         preload   => NONE,
+        cache     => 1,
         @_
     );
 
@@ -137,8 +142,14 @@ sub _init {
         croak "no source specified";
     }
 
-    $self->{_level} = NONE;
-    $self->_parse_headers($options{preload});
+    if ($options{preload} && !$options{cache}) {
+        carp "Forcing caching as preloading specified\n";
+        $options{cache} = 1;
+    }
+
+    $self->_parse_headers($options{preload}) if $options{preload};
+    $self->{_level} = $options{preload};
+    $self->{_cache} = $options{cache};
 
     return $self;
 }
@@ -191,12 +202,20 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    $self->_parse_headers(PARTIAL);
+    if (PARTIAL <= $self->{_level}) {
+        $self->_parse_headers(PARTIAL);
+        $self->{_level} = PARTIAL;
+    }
 
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
     });
-    
+
+    # remove headers if needed
+    if (!$self->{_cache}) {
+        $self->{_urpm} = undef;
+        $self->{_level} = NONE;
+    }
 }
 
 sub traverse_full_headers {
@@ -204,18 +223,24 @@ sub traverse_full_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    $self->_parse_headers(FULL);
+    if (FULL <= $self->{_level}) {
+        $self->_parse_headers(FULL);
+        $self->{_level} = FULL;
+    }
 
     $self->{_urpm}->traverse(sub {
         $function->(Youri::Package::RPM::URPM->new(header => $_[0]));
     });
-    
+
+    # remove headers if needed
+    if (!$self->{_cache}) {
+        $self->{_urpm} = undef;
+        $self->{_level} = NONE;
+    }
 }
 
 sub _parse_headers {
     my ($self, $level) = @_;
-
-    return if $level <= $self->{_level};
 
     $self->{_urpm} = URPM->new();
     CASE: {
@@ -257,7 +282,6 @@ sub _parse_headers {
             last CASE;
         }
     }
-    $self->{_level} = $level;
 }
 
 
