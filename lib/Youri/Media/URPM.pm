@@ -202,7 +202,7 @@ sub traverse_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    if (PARTIAL <= $self->{_level}) {
+    if ($self->{_level} < PARTIAL}) {
         $self->_parse_headers(PARTIAL);
         $self->{_level} = PARTIAL;
     }
@@ -223,7 +223,7 @@ sub traverse_full_headers {
     croak "Not a class method" unless ref $self;
 
     # lazy initialisation
-    if (FULL <= $self->{_level}) {
+    if ($self->{_level} < FULL}) {
         $self->_parse_headers(FULL);
         $self->{_level} = FULL;
     }
@@ -241,6 +241,9 @@ sub traverse_full_headers {
 
 sub _parse_headers {
     my ($self, $level) = @_;
+
+    # return if level is NONE
+    return unless $level;
 
     $self->{_urpm} = URPM->new();
     CASE: {
